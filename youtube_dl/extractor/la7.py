@@ -23,7 +23,7 @@ class LA7IE(InfoExtractor):
             'id': '0_42j6wd36',
             'ext': 'mp4',
             'title': 'Inc.Cool8',
-            'description': 'Benvenuti nell\'incredibile mondo della INC. COOL. 8. dove “INC.” sta per “Incorporated” “COOL” sta per “fashion” ed Eight sta per il gesto  atletico',
+            'description': 'Benvenuti nell\'incredibile mondo della INC. COOL. 8. dove “INC.” sta per “Incorporated” “COOL” sta per “fashion” ed Eight sta per il gesto atletico',
             'thumbnail': 're:^https?://.*',
             'uploader_id': 'kdla7pillole@iltrovatore.it',
             'timestamp': 1443814869,
@@ -48,11 +48,12 @@ class LA7IE(InfoExtractor):
 
         webpage = self._download_webpage(url, video_id)
 
-        player_data = self._parse_json(
-            self._search_regex(
-                [r'(?s)videoParams\s*=\s*({.+?});', r'videoLa7\(({[^;]+})\);'],
-                webpage, 'player data'),
-            video_id, transform_source=js_to_json)
+        data = self._search_regex([r'(?s)videoParams\s*=\s*({.+?});', r'videoLa7\(({[^;]+})\);'],
+                                  webpage, 'player data')
+        data = js_to_json(data)
+        # remove field containing JS code
+        data = ''.join(x for x in data.splitlines() if '!!' not in x)
+        player_data = self._parse_json(data, video_id)
 
         return {
             '_type': 'url_transparent',
